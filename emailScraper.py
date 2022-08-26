@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import time,re
 
 
-#mutation of strings for appropriate search
+#mutation of strings for appropriate search ()
 def mutate(userInput:str,infoToChange:str)->str:
     if infoToChange == 'website':
         return "site%3A"+userInput.strip()
