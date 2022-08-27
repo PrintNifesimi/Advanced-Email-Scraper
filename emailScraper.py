@@ -2,7 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import time,re
 
-
+global filename
+filename=""
 #mutation of strings for appropriate search ()
 def mutate(userInput:str,infoToChange:str)->str:
     if infoToChange == 'website':
@@ -18,7 +19,10 @@ def mutate(userInput:str,infoToChange:str)->str:
 def buildURL():
     website=input("Enter A Site To Search e.g (instagram.com): ").strip()
     searchTerms = input("Enter 1-3 optional search Terms: ")
+    global filename
+    filename=",".join(searchTerms.split())
     url =f'https://www.google.com/search?q={mutate(website,"website")}+{mutate(searchTerms,"searchTerms")}+"icloud"+OR+"outlook"+OR+"gmail"+OR+"yahoo"'
+    print(url)
     return url
 
 #Regex for email,usernames,etc
@@ -56,8 +60,8 @@ def scrapeDataInstagram(html):
         userName=uNRegex.search(url).group() if url else None
         emails=emailRegex.findall(info.find("div",{"class":"BNeawe s3v9rd AP7Wnd"}).text)
         if emails==[]:continue
-        print(userName,"  ",emails,"\n")
-        with open("info.txt",mode='a') as infoFile:
+        #print(userName,"  ",emails,"\n")
+        with open(f"({filename})info.txt",mode='a') as infoFile:
             #join all emails if multiple
             emailToWrite=""
             for emailGroup in emails:
@@ -71,13 +75,16 @@ def nextPage():
     url = buildURL() #User builds URL on first attempt
     
     while url:
+        time.sleep(3)
         html=getHtml(url)
         scrapeDataInstagram(html)
-        url = "https://www.google.com"+html.find("a",{"class":"nBDE1b G5eFlf"}).get("href")
-    return "Done Scraping"
+        prevAndNext=html.findAll("a",{"class":"nBDE1b G5eFlf"})
+        if len(prevAndNext)==0:return "Done Scraping"
+        url = "https://www.google.com"+prevAndNext[-1].get("href")
+    
     
 
     
 
-url="https://www.google.com/search?q=site:instagram.com+%22cook%22+%22icloud%22+OR+%22outlook%22+OR+%22gmail%22+OR+%22yahoo%22&ie=UTF-8&ei=tXUJY_6QBIiOgAaD96j4Dg&start=10&sa=N"
-print(getHtml(url).prettify())
+
+print(nextPage())
