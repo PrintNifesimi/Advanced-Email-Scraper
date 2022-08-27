@@ -63,20 +63,21 @@ def scrapeDataInstagram(html):
             for emailGroup in emails:
                 emailToWrite+=","+emailGroup[0]
             infoFile.write(userName+emailToWrite+"\n")
+    infoDiv=[]
 
-    return "Done"
+    return 
 
 def nextPage():
     url = buildURL() #User builds URL on first attempt
     
-    #while url:
-    html=getHtml(url)
-        #scrapeDataInstagram(html)
-    url = html.find("a",{"class":"nBDE1b G5eFlf"})
-    return html.prettify()
-    #    url = 
+    while url:
+        html=getHtml(url)
+        scrapeDataInstagram(html)
+        url = "https://www.google.com"+html.find("a",{"class":"nBDE1b G5eFlf"}).get("href")
+    return "Done Scraping"
+    
 
     
 
-
-print(nextPage())
+url="https://www.google.com/search?q=site:instagram.com+%22cook%22+%22icloud%22+OR+%22outlook%22+OR+%22gmail%22+OR+%22yahoo%22&ie=UTF-8&ei=tXUJY_6QBIiOgAaD96j4Dg&start=10&sa=N"
+print(getHtml(url).prettify())
