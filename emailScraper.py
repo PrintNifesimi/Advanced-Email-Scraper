@@ -34,14 +34,14 @@ def getRegex(inquiry):
     return regexDict[inquiry]
 
 #Handle Html
-def getHtml(bool,url=None):
-    html = requests.get(buildURL()) if bool else requests.get(url)
+def getHtml(url):
+    html = requests.get(url)
     soup = BeautifulSoup(html.text,'html.parser')
     return soup
 
-def scrapeDataInstagram():
+def scrapeDataInstagram(html):
     #first get the users username from url instagram.com/userName/
-    html=getHtml(True)
+    
     #URLS=html.findAll("div",{"class":"egMi0 kCrYT"})#.a.get("href")
     #emailContainer=html.findAll("div",{"class":"BNeawe s3v9rd AP7Wnd"})
     infoDiv = html.findAll("div",{"class":"Gx5Zad fP1Qef xpd EtOod pkphOe"})
@@ -64,9 +64,19 @@ def scrapeDataInstagram():
                 emailToWrite+=","+emailGroup[0]
             infoFile.write(userName+emailToWrite+"\n")
 
-    return ""
+    return "Done"
+
+def nextPage():
+    url = buildURL() #User builds URL on first attempt
+    
+    #while url:
+    html=getHtml(url)
+        #scrapeDataInstagram(html)
+    url = html.find("a",{"class":"nBDE1b G5eFlf"})
+    return html.prettify()
+    #    url = 
+
+    
 
 
-
-
-print(getHtml(True))
+print(nextPage())
