@@ -1,9 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
 import time,re
+import csv
 
 global filename
 filename=""
+
+fields=['name','email']
 #mutation of strings for appropriate search ()
 def mutate(userInput:str,infoToChange:str)->str:
     if infoToChange == 'website':
@@ -51,6 +54,8 @@ def scrapeDataInstagram(html):
     infoDiv = html.findAll("div",{"class":"Gx5Zad fP1Qef xpd EtOod pkphOe"})
     uNRegex=getRegex("instagramUN")
     emailRegex=getRegex("emailRegex")
+    
+    rows=[]
     for info in infoDiv:
         url=info.a
         if url:
@@ -58,17 +63,28 @@ def scrapeDataInstagram(html):
         else:
             url = None
         userName=uNRegex.search(url).group() if url else None
+        if userName == "p":userName="From Post"
         emails=emailRegex.findall(info.find("div",{"class":"BNeawe s3v9rd AP7Wnd"}).text)
         if emails==[]:continue
-        #print(userName,"  ",emails,"\n")
-        with open(f"({filename})info.txt",mode='a') as infoFile:
-            #join all emails if multiple
-            emailToWrite=""
-            for emailGroup in emails:
-                emailToWrite+=","+emailGroup[0]
-            infoFile.write(userName+emailToWrite+"\n")
-    infoDiv=[]
+        emailToWrite=""
+        for emailGroup in emails:
+            emailToWrite+=" "+emailGroup[0] #getting all emails in div incase more than one
+        lst=[userName]+emailToWrite.split()
+        rows.append(lst) #append this pages usernames and emails to rows for csv file
 
+#Write to csv file 
+    with open(f"({filename})info.csv",mode='a') as infoFile:
+            csvFile = csv.writer(infoFile)
+            #join all emails if multiple
+            global fields
+            if fields:
+                csvFile.writerow(fields)
+                
+                fields=[]
+            
+            csvFile.writerows(rows)
+    infoDiv=[]
+    
     return 
 
 def nextPage():
