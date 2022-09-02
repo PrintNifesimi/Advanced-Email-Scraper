@@ -6,7 +6,7 @@ import csv
 global filename
 filename=""
 
-fields=['name','email']
+fields=['name','email','occupation']
 #mutation of strings for appropriate search ()
 def mutate(userInput:str,infoToChange:str)->str:
     if infoToChange == 'website':
@@ -21,6 +21,7 @@ def mutate(userInput:str,infoToChange:str)->str:
 #Get Search Information from User
 def buildURL():
     website=input("Enter A Site To Search e.g (instagram.com): ").strip()
+    global searchTerms
     searchTerms = input("Enter 1-3 optional search Terms: ")
     global filename
     filename=",".join(searchTerms.split())
@@ -63,16 +64,18 @@ def scrapeDataInstagram(html):
         else:
             url = None
         userName=uNRegex.search(url).group() if url else None
-        if userName == "p":userName="From Post"
+        if userName == "p" or userName=="explore":continue
+        
         emails=emailRegex.findall(info.find("div",{"class":"BNeawe s3v9rd AP7Wnd"}).text)
         if emails==[]:continue
-        emailToWrite=""
+        emailToWrite=[]
         for emailGroup in emails:
-            emailToWrite+=" "+emailGroup[0] #getting all emails in div incase more than one
-        lst=[userName]+emailToWrite.split()
-        rows.append(lst) #append this pages usernames and emails to rows for csv file
+            emailToWrite.append(emailGroup[0]) #getting all emails in div incase more than one
+        lst=[userName]+[emailToWrite[0]]+[searchTerms]
+        if lst not in rows: rows.append(lst)#append this pages usernames and emails to rows for csv file
 
 #Write to csv file 
+    #print(rows)
     with open(f"({filename})info.csv",mode='a') as infoFile:
             csvFile = csv.writer(infoFile)
             #join all emails if multiple
